@@ -13,35 +13,76 @@ struct ContentView: View {
     @State private var datos : Datos?
     
     var body: some View {
-        HStack{
-            Spacer()
-            
-            VStack(alignment: .trailing){
+        Spacer()
+        ZStack {
+            Image("fondoballenas")
+            .resizable()
+            .edgesIgnoringSafeArea(.all)
+           
+            HStack{
                 Spacer()
                 
-                Text(datos?.phrase ?? "")
+                VStack(alignment: .trailing){
+                    Spacer()
+                    
+                    //De esta forma metemos un recuadro de fondo, pero no se ajusta al tamaño de la cita
+                    /*
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.gray.opacity(0.2))
+                        Text(datos?.content ?? "")
+                        .font(.title2)
+                        .padding()
+                    }*/
+                    //Insertamos la cita, pero con un recuadro de fondo, ajustable
+                    Text(datos?.content ?? "")
                     .font(.title2)
-                Text("- \(datos?.author ?? "")")
-                    .font(.title2)
+                    .padding()
+                    .background(                RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.white.opacity(0.5))
+                        .overlay(                                             RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.black, lineWidth: 1)
+                        )
+                    )
+                    .padding(.bottom)
+                    VStack(alignment: .trailing) {
+                        Text("- Autor: \(datos?.author ?? "")")
+                            .font(.title2)
+                        .padding(5)
+                    
+                    Text("- Longitud: \(datos?.length ?? 0)")
+                        .font(.title2)
+                        .padding(5)
+                    Text("- Cita agregada: \(datos?.dateAdded ?? "")")
+                        .font(.title2)
+                        .padding(5)
+                    }
+                    .background(
+                        Rectangle()
+                        .fill(Color.white.opacity(0.5))
+                        .overlay(                                             Rectangle()
+                            .stroke(Color.gray, lineWidth: 1)
+                        )
+                    )
+                    
+                    Spacer()
+                    
+                    Button(action: llamaUrl){
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    .font(.title)
                     .padding(.top)
-                
-                Spacer()
-                
-                Button(action: llamaUrl){
-                    Image(systemName: "arrow.clockwise")
                 }
-                .font(.title)
-                .padding(.top)
             }
-        }
-        .multilineTextAlignment(.trailing)
-        .padding()
+            .multilineTextAlignment(.trailing)
+            .padding()
         .onAppear(perform: llamaUrl)
+        }
     }
     
     //Función para llamar a la Web que proporciona la API
     private func llamaUrl() {
-        guard let url = URL(string: "https://frasedeldia.azurewebsites.net/api/phrase") else{return}
+        guard let url = URL(string: "https://api.quotable.io/random") else{return}
         
         //Creamos sesión de URL para pedir datos a la URL
         URLSession.shared.dataTask(with: url) { data, response, error in
@@ -67,8 +108,10 @@ struct Datos: Decodable {
     //var _id : String
     //Identificador para el idioma, que siempre va a ser Inglés
     //var en : String
-    var phrase : String
+    var content : String
     var author : String
+    var length : Int
+    var dateAdded : String
     //Identificador para la frase, que también lo devuelve el JSON
     //var id : String
 }
