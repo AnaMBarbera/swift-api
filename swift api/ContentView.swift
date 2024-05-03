@@ -6,17 +6,22 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct ContentView: View {
     
     //Variable de estado que recoge los datos de la API
     @State private var datos : Datos?
     
+    @State private var isPlaying = false
+     let speechSynthesizer = AVSpeechSynthesizer()
+    
     var body: some View {
         Spacer()
         ZStack {
             Image("fondoballenas")
             .resizable()
+            //.scaledToFill()
             .edgesIgnoringSafeArea(.all)
            
             HStack{
@@ -40,8 +45,8 @@ struct ContentView: View {
                     .padding()
                     .background(                RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white.opacity(0.5))
-                        .overlay(                                             RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.black, lineWidth: 1)
+                        .overlay(                                RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.black, lineWidth: 3)
                         )
                     )
                     .padding(.bottom)
@@ -61,14 +66,20 @@ struct ContentView: View {
                         Rectangle()
                         .fill(Color.white.opacity(0.5))
                         .overlay(                                             Rectangle()
-                            .stroke(Color.gray, lineWidth: 1)
+                            .stroke(Color.gray, lineWidth: 3)
                         )
                     )
                     
                     Spacer()
+                    Button(action: {
+                        self.playText(texto: datos?.content ?? "")
+                               }) {
+                                   Text("Reproducir texto")
+                               }
                     
                     Button(action: llamaUrl){
                         Image(systemName: "arrow.clockwise")
+                            
                     }
                     .font(.title)
                     .padding(.top)
@@ -79,6 +90,16 @@ struct ContentView: View {
         .onAppear(perform: llamaUrl)
         }
     }
+    
+    func playText(texto : String) {
+           let utterance = AVSpeechUtterance(string: texto)
+       //    utterance.voice = AVSpeechSynthesisVoice(language: "en-EN") // Selecciona el idioma deseado
+ 
+            let voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.Daniel-compact")
+            utterance.voice = voice
+        
+           speechSynthesizer.speak(utterance)
+       }
     
     //Función para llamar a la Web que proporciona la API
     private func llamaUrl() {
